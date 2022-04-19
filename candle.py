@@ -6,6 +6,7 @@ import time
 led = digitalio.DigitalInOut(board.A4)
 led.direction = digitalio.Direction.OUTPUT
 
+sensitivity_adjust = analogio.AnalogIn(board.A0)
 led_sensor = analogio.AnalogIn(board.A3)
 
 reed_switch = digitalio.DigitalInOut(board.D0)
@@ -17,7 +18,7 @@ tilt_switch.direction = digitalio.Direction.INPUT
 tilt_switch.pull = digitalio.Pull.UP
 
 # minimum change in LED reading to signal cooling
-trigger_delta = 150
+trigger_delta = 150 + ((sensitivity_adjust.value/1000) - 32)
 last_led_reading = 0
 is_on = False
 
@@ -56,7 +57,7 @@ def puff_detected():
     led_reading = sample_led()
     delta = led_reading - last_led_reading
     is_triggered = delta > trigger_delta
-    print("delta=", delta)
+    print("delta=", delta, "?", trigger_delta)
     last_led_reading = led_reading
     return is_triggered
 
